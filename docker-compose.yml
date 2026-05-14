@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: finguard-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-finguard_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+      POSTGRES_DB: ${POSTGRES_DB:-finguard}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-finguard_user} -d ${POSTGRES_DB:-finguard}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.17.0
+    container_name: finguard-mlflow
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --default-artifact-root /mlflow/artifacts
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow-data:/mlflow
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: finguard-api
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-finguard_user}:${POSTGRES_PASSWORD:-change_me}@postgres:5432/${POSTGRES_DB:-finguard}
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MODEL_PATH: artifacts/model.pkl
+      SCALER_PATH: artifacts/scaler.pkl
+      METRICS_PATH: artifacts/metrics.json
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mlflow:
+        condition: service_started
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: finguard-dashboard
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-finguard_user}:${POSTGRES_PASSWORD:-change_me}@postgres:5432/${POSTGRES_DB:-finguard}
+      API_BASE_URL: http://api:8000
+      DATA_PATH: data/creditcard.csv
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+  mlflow-data:
