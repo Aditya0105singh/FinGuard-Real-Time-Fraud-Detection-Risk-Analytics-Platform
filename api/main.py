@@ -1,25 +1,32 @@
-"""FinGuard — real-time fraud scoring API (FastAPI).
+"""FinGuard — FastAPI fraud scoring API.
 
-Endpoints:
-  GET  /health         liveness + model version
-  POST /predict        score one transaction
-  POST /batch-predict  score up to 1,000 transactions
-  GET  /stats          model performance metrics from the last training run
+When Streamlit Cloud runs this file it automatically redirects to
+dashboard/app.py (the actual Streamlit dashboard).
 
-Run locally:
+Run the API locally:
     uvicorn api.main:app --reload --port 8000
 """
 
-import logging
 import os
 import sys
 
-# Ensure the repo root is on sys.path so `api.*` and `src.*` are importable
-# whether this file is run as `uvicorn api.main:app` (from repo root) or
-# executed directly by Streamlit Cloud (which adds api/ to sys.path instead).
+# Ensure repo root is on sys.path for both api.* and src.* imports.
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
+
+# Streamlit loads streamlit itself into sys.modules before exec-ing this file.
+# Uvicorn imports it as a plain module without streamlit present.
+# Use that to redirect Streamlit Cloud to the correct entry point.
+if "streamlit" in sys.modules:
+    _dashboard = os.path.join(_REPO_ROOT, "dashboard", "app.py")
+    with open(_dashboard, encoding="utf-8") as _f:
+        exec(compile(_f.read(), _dashboard, "exec"),  # noqa: S102
+             {"__file__": _dashboard, "__name__": "__main__"})
+    sys.exit(0)
+
+# ── FastAPI (uvicorn) path ─────────────────────────────────────────────
+import logging
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
