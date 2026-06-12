@@ -19,14 +19,14 @@
 ![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)
 
 [![🚀 Live Dashboard](https://img.shields.io/badge/🚀_Live_Dashboard-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://finguard-real-time-fraud-detection-risk-analytics-platform-muz.streamlit.app/)
-[![⚡ FastAPI Docs](https://img.shields.io/badge/⚡_FastAPI_Docs-Swagger_UI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://finguard-api.onrender.com/docs)
+[![⚡ FastAPI Docs](https://img.shields.io/badge/⚡_FastAPI_Docs-Swagger_UI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://finguard-real-time-fraud-detection-risk.onrender.com/docs)
 [![📦 GitHub Repo](https://img.shields.io/badge/📦_GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Aditya0105singh/FinGuard-Real-Time-Fraud-Detection-Risk-Analytics-Platform)
 
 > **🔗 Quick Links:**
 >
 > | 📊 Live Dashboard | ⚡ API Docs | 📦 GitHub |
 > |:---:|:---:|:---:|
-> | [streamlit.app ↗](https://finguard-real-time-fraud-detection-risk-analytics-platform-muz.streamlit.app/) | [onrender.com/docs ↗](https://finguard-api.onrender.com/docs) | [GitHub ↗](https://github.com/Aditya0105singh/FinGuard-Real-Time-Fraud-Detection-Risk-Analytics-Platform) |
+> | [streamlit.app ↗](https://finguard-real-time-fraud-detection-risk-analytics-platform-muz.streamlit.app/) | [onrender.com/docs ↗](https://finguard-real-time-fraud-detection-risk.onrender.com/docs) | [GitHub ↗](https://github.com/Aditya0105singh/FinGuard-Real-Time-Fraud-Detection-Risk-Analytics-Platform) |
 
 ---
 
@@ -199,7 +199,7 @@ waterfall). Reads PostgreSQL when available, falls back to CSV.
 | Service | URL | Status |
 |---|---|---|
 | 📊 Streamlit Dashboard | [finguard…streamlit.app](https://finguard-real-time-fraud-detection-risk-analytics-platform-muz.streamlit.app/) | ✅ Live |
-| ⚡ FastAPI Docs (Swagger) | [finguard-api.onrender.com/docs](https://finguard-api.onrender.com/docs) | 🔄 Deploying |
+| ⚡ FastAPI Docs (Swagger) | [finguard…onrender.com/docs](https://finguard-real-time-fraud-detection-risk.onrender.com/docs) | ✅ Live |
 | 📦 GitHub Repository | [Aditya0105singh/FinGuard…](https://github.com/Aditya0105singh/FinGuard-Real-Time-Fraud-Detection-Risk-Analytics-Platform) | ✅ Public |
 
 ## ⚙️ Setup & Run
