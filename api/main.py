@@ -11,6 +11,15 @@ Run locally:
 """
 
 import logging
+import os
+import sys
+
+# Ensure the repo root is on sys.path so `api.*` and `src.*` are importable
+# whether this file is run as `uvicorn api.main:app` (from repo root) or
+# executed directly by Streamlit Cloud (which adds api/ to sys.path instead).
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
