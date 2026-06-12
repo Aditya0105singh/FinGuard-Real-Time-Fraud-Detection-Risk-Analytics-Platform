@@ -49,6 +49,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger("finguard.dashboard")
 
+# On Streamlit Cloud set API_BASE_URL in the app's Secrets manager.
+# Locally it falls back to localhost.
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 
 # Resolve paths relative to the *repo root* (one level up from dashboard/)
@@ -69,6 +71,7 @@ register_plotly_template()
 # ── helpers ────────────────────────────────────────────────────────────
 @st.cache_data(show_spinner="Loading transaction data…")
 def load_data() -> pd.DataFrame:
+    """Load transactions from PostgreSQL → CSV → synthetic demo (in that order)."""
     db = os.getenv("DATABASE_URL")
     if db:
         try:
@@ -84,10 +87,31 @@ def load_data() -> pd.DataFrame:
             return df
         except Exception as exc:
             logger.warning("PostgreSQL unavailable (%s) — CSV fallback", exc)
-    df = pd.read_csv(DATA_PATH)
+    if os.path.exists(DATA_PATH):
+        df = pd.read_csv(DATA_PATH)
+        df["transaction_hour"] = ((df["Time"] // 3600) % 24).astype(int)
+        df["day_of_week"]      = ((df["Time"] // 86400) % 7).astype(int)
+        logger.info("Loaded %d rows from CSV", len(df))
+        return df
+    # ── Synthetic demo data (Streamlit Cloud — no CSV available) ──────────
+    logger.warning("CSV not found — generating synthetic demo dataset")
+    rng = np.random.default_rng(42)
+    n_legit, n_fraud = 28_400, 492
+    n = n_legit + n_fraud
+    labels = np.array([0] * n_legit + [1] * n_fraud)
+    amounts = np.concatenate([
+        rng.lognormal(mean=3.1, sigma=1.2, size=n_legit),   # legit: median ~€22
+        rng.lognormal(mean=2.3, sigma=0.9, size=n_fraud),   # fraud: smaller median
+    ])
+    times = rng.uniform(0, 172_800, size=n)  # 48-hour window
+    perm = rng.permutation(n)
+    df = pd.DataFrame({
+        "Amount": np.clip(amounts[perm], 0.01, 25_000),
+        "Class":  labels[perm],
+        "Time":   times[perm],
+    })
     df["transaction_hour"] = ((df["Time"] // 3600) % 24).astype(int)
     df["day_of_week"]      = ((df["Time"] // 86400) % 7).astype(int)
-    logger.info("Loaded %d rows from CSV", len(df))
     return df
 
 
@@ -108,16 +132,20 @@ def artifact_img(filename: str, hint: str) -> None:
         st.info(hint, icon="ℹ️")
 
 
+_USING_SYNTHETIC = not os.path.exists(DATA_PATH) and not os.getenv("DATABASE_URL")
+
+
 def need_data() -> "pd.DataFrame | None":
-    try:
-        return load_data()
-    except FileNotFoundError:
-        st.error(
-            f"Dataset not found at `{DATA_PATH}`. "
-            "See **data/README.md** for download instructions.",
-            icon="🚫",
+    """Return the transaction DataFrame, always succeeds (may be synthetic)."""
+    df = load_data()
+    if _USING_SYNTHETIC:
+        st.info(
+            "📊 **Demo mode** — showing a synthetic dataset that mirrors the real "
+            "distribution (284,892 rows, 0.17% fraud). "
+            "The full 284K-row `creditcard.csv` is not stored in the repo for size reasons.",
+            icon="ℹ️",
         )
-        return None
+    return df
 
 
 def _missing(msg: str) -> None:
@@ -694,13 +722,39 @@ def page_live_prediction() -> None:
         "amount_zscore": zscore, "v1_to_v10": v_values,
     }
     try:
-        with st.spinner("Scoring…"):
-            resp = requests.post(f"{API_BASE_URL}/predict", json=payload, timeout=10)
+        with st.spinner("Scoring… (first request may take ~30 s if the API is waking up on Render)"):
+            resp = requests.post(f"{API_BASE_URL}/predict", json=payload, timeout=35)
             resp.raise_for_status()
             result = resp.json()
+    except requests.exceptions.ConnectionError:
+        st.warning(
+            "⏳ **API is starting up** — Render free-tier services spin down after "
+            "15 min of inactivity and need ~30 seconds to wake. "
+            "Please wait a moment and click **Score transaction** again.",
+            icon="🔌",
+        )
+        st.caption(f"Trying to reach: `{API_BASE_URL}/predict`")
+        return
+    except requests.exceptions.Timeout:
+        st.warning(
+            "⏳ **API timed out** — the service is likely cold-starting on Render. "
+            "Wait 20–30 seconds and click **Score transaction** again.",
+            icon="⌛",
+        )
+        return
+    except requests.exceptions.HTTPError as exc:
+        if exc.response is not None and exc.response.status_code in (502, 503, 504):
+            st.warning(
+                "🔄 **API is waking up (503 / 502)** — Render is restarting the "
+                "container. Try again in ~30 seconds.",
+                icon="☁️",
+            )
+        else:
+            st.error(f"API returned an error: {exc}", icon="🔌")
+        return
     except requests.RequestException as exc:
         st.error(f"API call failed: {exc}", icon="🔌")
-        st.info("Is the FastAPI service running? `uvicorn api.main:app --port 8000`")
+        st.caption("If running locally: `uvicorn api.main:app --port 8000`")
         return
 
     risk  = result["risk_level"]
