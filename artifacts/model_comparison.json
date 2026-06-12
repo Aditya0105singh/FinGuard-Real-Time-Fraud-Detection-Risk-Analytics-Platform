@@ -1,0 +1,34 @@
+{
+  "best_by_average_precision": "xgb_scale_pos_weight",
+  "scale_pos_weight_used": 599.5,
+  "results": {
+    "xgb_smote": {
+      "precision": 0.2459016393442623,
+      "recall": 0.7894736842105263,
+      "f1": 0.375,
+      "auc_roc": 0.9670859157036296,
+      "average_precision": 0.745977621939465
+    },
+    "xgb_scale_pos_weight": {
+      "precision": 0.5251798561151079,
+      "recall": 0.7684210526315789,
+      "f1": 0.6239316239316239,
+      "auc_roc": 0.9648354792826623,
+      "average_precision": 0.7589488293377943
+    },
+    "xgb_undersample": {
+      "precision": 0.0478110599078341,
+      "recall": 0.8736842105263158,
+      "f1": 0.0906608410704533,
+      "auc_roc": 0.9691841738288636,
+      "average_precision": 0.6024810660057387
+    },
+    "isolation_forest": {
+      "precision": 0.12,
+      "recall": 0.12631578947368421,
+      "f1": 0.12307692307692308,
+      "auc_roc": 0.8937063404836074,
+      "average_precision": 0.0509122741988617
+    }
+  }
+}

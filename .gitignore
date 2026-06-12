@@ -16,8 +16,11 @@ htmlcov/
 data/*.csv
 data/*.parquet
 
-# Model artifacts (regenerate via src/train.py)
-artifacts/*
+# Model artifacts — large binaries gitignored, JSONs/PNGs committed for Streamlit Cloud
+artifacts/*.pkl
+artifacts/*.npz
+!artifacts/*.json
+!artifacts/*.png
 !artifacts/.gitkeep
 
 # MLflow

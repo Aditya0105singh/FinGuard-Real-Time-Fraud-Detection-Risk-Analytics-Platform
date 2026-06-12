@@ -1,0 +1,123 @@
+{
+  "generated_on": "2026-06-11",
+  "n_findings": 6,
+  "findings": [
+    {
+      "id": "night_risk",
+      "title": "Night transactions carry significantly elevated fraud risk",
+      "finding": "Fraud rate between 00:00\u201306:59 is 0.444% vs 0.136% during the day \u2014 a 3.3x relative risk. Chi-square test confirms this is not noise (\u03c7\u00b2=141, p=1.4e-32).",
+      "recommendation": "Apply step-up authentication (OTP/3-D Secure) to night-time transactions above the median amount.",
+      "evidence": {
+        "test": "chi-square test of independence (is_night \u00d7 fraud)",
+        "chi2": 141.31012911430003,
+        "p_value": 1.3763471270709023e-32,
+        "dof": 1,
+        "night_fraud_rate_pct": 0.4440624552356396,
+        "day_fraud_rate_pct": 0.13643364789954732,
+        "relative_risk": 3.2547869390884547,
+        "significant": true
+      }
+    },
+    {
+      "id": "amount_distribution",
+      "title": "Fraudulent amounts follow a different distribution",
+      "finding": "Median fraud amount is \u20ac9.82 vs \u20ac22.00 for legitimate transactions (Mann-Whitney U, p=2.7e-05). Fraudsters often probe with small amounts before larger attempts, so low-value anomalies matter as much as high-value ones.",
+      "recommendation": "Do not filter alerts purely by amount; small-amount anomalies on new patterns deserve scoring weight.",
+      "evidence": {
+        "test": "Mann-Whitney U (fraud vs legitimate amounts)",
+        "u_statistic": 59517129.5,
+        "p_value": 2.68609023836721e-05,
+        "fraud_median_amount": 9.82,
+        "legit_median_amount": 22.0,
+        "fraud_mean_amount": 123.87186046511628,
+        "legit_mean_amount": 88.41357475472456,
+        "significant": true
+      }
+    },
+    {
+      "id": "peak_hours",
+      "title": "Fraud concentrates in identifiable peak hours",
+      "finding": "The three riskiest hours (with 95% Wilson confidence intervals) are: 02:00 (1.451% [1.096\u20131.918%]), 04:00 (1.044% [0.696\u20131.561%]), 03:00 (0.488% [0.305\u20130.779%]). Overall portfolio baseline is 0.167%.",
+      "recommendation": "Staff manual-review queues to match the hourly risk curve rather than uniform coverage.",
+      "evidence": {
+        "top_hours": [
+          {
+            "transaction_hour": 2,
+            "txn_count": 3308,
+            "fraud_count": 48,
+            "fraud_rate_pct": 1.4510278113663846,
+            "ci_low_pct": 1.0962006507643358,
+            "ci_high_pct": 1.9184804582838746
+          },
+          {
+            "transaction_hour": 4,
+            "txn_count": 2204,
+            "fraud_count": 23,
+            "fraud_rate_pct": 1.043557168784029,
+            "ci_low_pct": 0.6963820352502678,
+            "ci_high_pct": 1.5610925049423352
+          },
+          {
+            "transaction_hour": 3,
+            "txn_count": 3487,
+            "fraud_count": 17,
+            "fraud_rate_pct": 0.48752509320332665,
+            "ci_low_pct": 0.30461577264719514,
+            "ci_high_pct": 0.7794053514023072
+          }
+        ]
+      }
+    },
+    {
+      "id": "threshold",
+      "title": "Cost-tuned decision threshold beats the 0.5 default",
+      "finding": "Sweeping thresholds against a cost model (missed fraud = full transaction amount, false decline = \u20ac30 friction) puts the optimal operating point at t=0.86, saving \u20ac4,489 on the test window vs the default 0.5 (recall 74.7%, precision 68.3%).",
+      "recommendation": "Deploy with threshold 0.86; re-tune whenever the friction-cost assumption or fraud mix changes.",
+      "evidence": {
+        "optimal": {
+          "threshold": 0.86,
+          "total_cost": 7180.89,
+          "missed_fraud_cost": 6190.89,
+          "friction_cost": 990.0,
+          "false_positives": 33,
+          "false_negatives": 24,
+          "precision": 0.6827,
+          "recall": 0.7474
+        },
+        "savings_vs_default_eur": 4488.67
+      }
+    },
+    {
+      "id": "risky_segment",
+      "title": "A small behavioural segment concentrates outsized fraud",
+      "finding": "K-means segment 2 holds only 32.5% of transactions but 67.9% of all fraud \u2014 2.1x the baseline rate, \u20ac25,454 of fraud value (avg ticket \u20ac44.41, 13% at night).",
+      "recommendation": "Route this segment to a stricter scoring threshold or rules overlay; it is the cheapest place to buy recall.",
+      "evidence": {
+        "segment": 2,
+        "size": 92170,
+        "pct_of_transactions": 32.49,
+        "fraud_count": 321,
+        "fraud_rate_pct": 0.3483,
+        "pct_of_all_fraud": 67.86,
+        "risk_multiple_vs_baseline": 2.09,
+        "avg_amount": 44.41,
+        "median_amount": 15.0,
+        "night_share_pct": 12.74,
+        "fraud_amount_eur": 25453.73
+      }
+    },
+    {
+      "id": "model_performance",
+      "title": "Model performance on the held-out test set",
+      "finding": "XGBoost with SMOTE achieves recall 78.9%, precision 24.6%, AUC-ROC 0.967 and average precision 0.746 on 20% held-out data. With a 0.17% fraud base rate, average precision is the honest headline metric \u2014 accuracy is uninformative.",
+      "recommendation": "Track precision/recall at the deployed threshold weekly; alert if recall drops more than 5 points.",
+      "evidence": {
+        "precision": 0.2459016393442623,
+        "recall": 0.7894736842105263,
+        "f1": 0.375,
+        "auc_roc": 0.9670859157036296,
+        "average_precision": 0.745977621939465
+      }
+    }
+  ]
+}

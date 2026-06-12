@@ -1,0 +1,73 @@
+{
+  "n_clusters": 4,
+  "features_used": [
+    "amount_log",
+    "transaction_hour",
+    "V1",
+    "V2",
+    "V3",
+    "V4",
+    "V5",
+    "V6",
+    "V7",
+    "V8",
+    "V9",
+    "V10"
+  ],
+  "silhouette_score": 0.1048,
+  "baseline_fraud_rate_pct": 0.1667,
+  "segments": [
+    {
+      "segment": 2,
+      "size": 92170,
+      "pct_of_transactions": 32.49,
+      "fraud_count": 321,
+      "fraud_rate_pct": 0.3483,
+      "pct_of_all_fraud": 67.86,
+      "risk_multiple_vs_baseline": 2.09,
+      "avg_amount": 44.41,
+      "median_amount": 15.0,
+      "night_share_pct": 12.74,
+      "fraud_amount_eur": 25453.73
+    },
+    {
+      "segment": 1,
+      "size": 111492,
+      "pct_of_transactions": 39.3,
+      "fraud_count": 111,
+      "fraud_rate_pct": 0.0996,
+      "pct_of_all_fraud": 23.47,
+      "risk_multiple_vs_baseline": 0.6,
+      "avg_amount": 31.69,
+      "median_amount": 11.5,
+      "night_share_pct": 11.45,
+      "fraud_amount_eur": 5957.19
+    },
+    {
+      "segment": 3,
+      "size": 61790,
+      "pct_of_transactions": 21.78,
+      "fraud_count": 41,
+      "fraud_rate_pct": 0.0664,
+      "pct_of_all_fraud": 8.67,
+      "risk_multiple_vs_baseline": 0.4,
+      "avg_amount": 262.91,
+      "median_amount": 112.55,
+      "night_share_pct": 2.53,
+      "fraud_amount_eur": 27180.47
+    },
+    {
+      "segment": 0,
+      "size": 18274,
+      "pct_of_transactions": 6.44,
+      "fraud_count": 0,
+      "fraud_rate_pct": 0.0,
+      "pct_of_all_fraud": 0.0,
+      "risk_multiple_vs_baseline": 0.0,
+      "avg_amount": 67.3,
+      "median_amount": 20.55,
+      "night_share_pct": 10.12,
+      "fraud_amount_eur": 0.0
+    }
+  ]
+}
