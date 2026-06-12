@@ -135,8 +135,7 @@ held-out test set for downstream analysis.
 SMOTE is a choice, not a default. Four candidates trained on the identical
 split as separate MLflow runs: **SMOTE**, **scale_pos_weight** (class
 weighting), **random undersampling**, and an **unsupervised Isolation
-Forest** (answers "what if we had no fraud labels?"). Outputs a
-README-ready comparison table → paste your results below after running:
+Forest** (answers "what if we had no fraud labels?"). Results:
 
 | Strategy | Avg Precision | AUC-ROC | Precision | Recall | F1 |
 |---|---|---|---|---|---|
@@ -185,13 +184,20 @@ Six pages: **Overview** (KPIs, volume, fraud ratio), **Fraud Analysis**
 matrix, ROC/PR), **Live Prediction** (form → API → risk gauge + SHAP
 waterfall). Reads PostgreSQL when available, falls back to CSV.
 
-## 🚀 Setup & Run
+## 🚀 Live Demo
+
+| Service | URL |
+|---|---|
+| 📊 Streamlit Dashboard | _Coming soon — deploying to Render_ |
+| ⚡ FastAPI Docs (Swagger) | _Coming soon — deploying to Render_ |
+
+## ⚙️ Setup & Run
 
 ### 1. Install
 
 ```bash
-git clone https://github.com/<your-username>/fintech-fraud-detection.git
-cd fintech-fraud-detection
+git clone https://github.com/Aditya0105singh/FinGuard-Real-Time-Fraud-Detection-Risk-Analytics-Platform.git
+cd FinGuard-Real-Time-Fraud-Detection-Risk-Analytics-Platform
 python -m venv .venv
 # Windows: .venv\Scripts\activate   |   macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
@@ -199,8 +205,8 @@ cp .env.example .env   # then edit credentials
 ```
 
 ### 2. Get the dataset
-Download `creditcard.csv` from Kaggle into `data/` — see
-[data/README.md](data/README.md).
+Download `creditcard.csv` from Kaggle into `data/`:
+[Credit Card Fraud Detection — Kaggle](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)
 
 ### 3. Run the analytics pipeline (in order)
 
@@ -214,7 +220,7 @@ python -m src.insights               # executive findings memo
 python -m src.compare_models         # 4-way bake-off (slow, optional)
 ```
 
-### 4. Serve
+### 4. Serve locally
 
 ```bash
 uvicorn api.main:app --reload --port 8000     # API → localhost:8000/docs
@@ -268,49 +274,17 @@ Risk bands: `< 0.30 LOW` · `< 0.60 MEDIUM` · `< 0.85 HIGH` · `≥ 0.85 CRITIC
 | `POST /batch-predict` | Up to 1,000 transactions (explanations omitted for throughput) |
 | `GET /stats` | Last training run's metrics + cost-optimal threshold |
 
-## 🖥️ Dashboard Screenshots
-
-> _Placeholders — capture after first full pipeline run._
-
-| Page | Screenshot |
-|------|------------|
-| Overview | `docs/screenshots/overview.png` |
-| Fraud Analysis | `docs/screenshots/fraud-analysis.png` |
-| Segments | `docs/screenshots/segments.png` |
-| Executive Insights | `docs/screenshots/insights.png` |
-| Model Performance (cost curve + bake-off) | `docs/screenshots/model.png` |
-| Live Prediction (SHAP waterfall) | `docs/screenshots/live-prediction.png` |
-
 ## 🔁 CI/CD
 
 Every push to `main`: **test** (41 pytest tests on synthetic fixtures — no
 dataset needed in CI) → **build** (both Docker images, layer-cached) →
 **deploy** (Render deploy hook via `RENDER_DEPLOY_HOOK_URL` secret).
 
-## 📄 Resume Bullet Points
-
-- **Built an end-to-end fraud detection platform** processing 284K+ credit
-  card transactions (PostgreSQL → XGBoost → FastAPI), handling extreme 0.17%
-  class imbalance with a four-way strategy bake-off in MLflow (SMOTE,
-  class weighting, undersampling, unsupervised baseline) and confirming key
-  fraud patterns with formal statistical tests — night transactions proved
-  **3.25x riskier** (chi-square, p < 10⁻³¹).
-- **Optimised the decision threshold on a business cost model** (missed-fraud
-  value vs false-decline friction), reducing expected fraud-handling cost by
-  **38.5% (€4,489 on the test window)** vs the default threshold, and isolated
-  a K-means behavioural segment holding **32.5% of volume but 67.9% of all
-  fraud (2.1x baseline risk)** for targeted step-up authentication.
-- **Shipped explainable real-time scoring** — sub-second FastAPI service
-  returning per-prediction SHAP factors for regulatory auditability, a 6-page
-  Streamlit analytics dashboard with an executive insights memo, 41 automated
-  tests, and GitHub Actions CI/CD deploying Docker images to Render.
-
 ## 📁 Project Structure
 
 ```
 fintech-fraud-detection/
 ├── .github/workflows/ci-cd.yml   # test → build → deploy
-├── data/README.md                # dataset download instructions
 ├── sql/queries.sql               # 15 business analytics queries
 ├── src/
 │   ├── ingest.py                 # CSV → PostgreSQL + enrichment + indexes
@@ -327,7 +301,6 @@ fintech-fraud-detection/
 ├── dashboard/app.py              # 6-page Streamlit dashboard
 ├── notebooks/eda.ipynb           # EDA incl. hypothesis testing
 ├── tests/                        # 41 tests (API, model, analytics)
-├── docs/INTERVIEW_PREP.md        # in-depth interview preparation guide
 ├── docker-compose.yml            # postgres + mlflow + api + dashboard
 ├── Dockerfile.api / Dockerfile.dashboard
 └── requirements.txt              # pinned dependencies
