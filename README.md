@@ -248,11 +248,11 @@ docker compose up --build
 
 ## 📡 API Reference
 
-Interactive docs at `http://localhost:8000/docs`.
+Interactive docs at [finguard-real-time-fraud-detection-risk.onrender.com/docs](https://finguard-real-time-fraud-detection-risk.onrender.com/docs).
 
 ### `POST /predict`
 ```bash
-curl -X POST http://localhost:8000/predict \
+curl -X POST https://finguard-real-time-fraud-detection-risk.onrender.com/predict \
   -H "Content-Type: application/json" \
   -d '{
     "amount": 149.62,
