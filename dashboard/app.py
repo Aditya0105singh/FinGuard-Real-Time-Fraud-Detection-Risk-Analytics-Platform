@@ -759,6 +759,41 @@ def page_live_prediction() -> None:
         else:
             st.info("The API did not return SHAP factors for this prediction.")
 
+    st.divider()
+    section("GenAI Explanation (Groq)", "Translates the ML features into a human-readable memo.")
+    
+    groq_api_key = st.text_input("Enter Groq API Key to generate an explanation:", type="password", help="Get a free key at console.groq.com")
+    
+    if groq_api_key and factors:
+        if st.button("Generate Explanation with Llama 3"):
+            with st.spinner("Asking Groq..."):
+                try:
+                    from groq import Groq
+                    client = Groq(api_key=groq_api_key)
+                    
+                    # Build prompt from SHAP factors
+                    prompt = f"You are an expert fraud analyst explaining a decision to a non-technical manager. "
+                    prompt += f"The transaction amount was €{amount}. The risk model flagged it with a {result['fraud_probability']:.1%} probability of fraud. "
+                    prompt += f"The top factors driving this score are: "
+                    for f in factors:
+                        direction = "increased" if f["direction"] == "increases_risk" else "decreased"
+                        prompt += f"\n- {f['feature']} ({direction} risk)"
+                    prompt += "\n\nWrite a concise, 2-3 sentence business explanation of why this transaction was flagged or approved. Do not explain what SHAP or XGBoost is. Just explain the risk."
+                    
+                    chat_completion = client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": "You are a helpful, professional fraud analyst."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        model="llama3-8b-8192",
+                        temperature=0.3,
+                        max_tokens=150,
+                    )
+                    explanation = chat_completion.choices[0].message.content
+                    st.success(explanation)
+                except Exception as e:
+                    st.error(f"Failed to generate explanation: {e}")
+
 
 # ── Router ─────────────────────────────────────────────────────────────
 PAGES = {
