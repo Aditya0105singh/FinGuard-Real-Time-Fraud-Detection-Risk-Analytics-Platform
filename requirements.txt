@@ -1,36 +1,24 @@
 # Core data stack
 pandas==2.2.3
 numpy==1.26.4
-sqlalchemy==2.0.35
-psycopg2-binary==2.9.9
 python-dotenv==1.0.1
 
 # Machine learning & statistics
 scipy==1.14.1
 scikit-learn==1.5.2
 xgboost==2.1.1
-imbalanced-learn==0.12.4
 joblib==1.4.2
-
-# Experiment tracking
-mlflow==2.17.0
-
-# API
-fastapi==0.115.0
-uvicorn[standard]==0.30.6
-pydantic==2.9.2
-python-multipart==0.0.22
 
 # Dashboard
 streamlit==1.39.0
 plotly==5.24.1
 
-# Visualisation (training artifacts)
+# Visualisation
 matplotlib==3.9.2
 seaborn==0.13.2
 
-# Testing
-pytest==8.3.3
-httpx==0.27.2
+# HTTP requests (for Live Prediction page)
 requests==2.32.3
+
+# GenAI explanation
 groq==0.8.0

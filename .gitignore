@@ -16,12 +16,10 @@ htmlcov/
 data/*.csv
 data/*.parquet
 
-# Model artifacts � large binaries gitignored, JSONs/PNGs committed for Streamlit Cloud
-artifacts/*.pkl
-artifacts/*.npz
-!artifacts/*.json
-!artifacts/*.png
-!artifacts/.gitkeep
+# Model artifacts — include JSON metrics, PNGs, and small pkl files for Streamlit Cloud
+artifacts/test_set.npz
+# artifacts/* uncommitted — NOT ignoring them so Streamlit Cloud can use them
+# To regenerate: python -m src.train && python -m src.evaluate
 
 # MLflow
 mlruns/

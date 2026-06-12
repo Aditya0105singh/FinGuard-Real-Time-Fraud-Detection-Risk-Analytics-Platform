@@ -16,6 +16,8 @@ Run:
 import json
 import logging
 import os
+import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -25,7 +27,13 @@ import requests
 import streamlit as st
 from dotenv import load_dotenv
 
-from theme import (
+# Ensure the dashboard directory is on the path so `theme` can be imported
+# whether the app is run from the repo root (Streamlit Cloud) or locally.
+_DASHBOARD_DIR = Path(__file__).parent
+if str(_DASHBOARD_DIR) not in sys.path:
+    sys.path.insert(0, str(_DASHBOARD_DIR))
+
+from theme import (  # noqa: E402
     AMBER, BLUE, BLUE_LIGHT, CHART_SEQ, GREEN, GREEN_BG, GREEN_BORDER,
     INDIGO, NAVY, NAVY_2, ORANGE, RED, RISK_COLORS,
     SLATE_200, SLATE_400, SLATE_500, SLATE_600, SLATE_700, SLATE_900,
@@ -42,8 +50,11 @@ logging.basicConfig(
 logger = logging.getLogger("finguard.dashboard")
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
-DATA_PATH    = os.getenv("DATA_PATH",    "data/creditcard.csv")
-ARTIFACT_DIR = os.getenv("ARTIFACT_DIR", "artifacts")
+
+# Resolve paths relative to the *repo root* (one level up from dashboard/)
+_REPO_ROOT   = _DASHBOARD_DIR.parent
+DATA_PATH    = os.getenv("DATA_PATH",    str(_REPO_ROOT / "data" / "creditcard.csv"))
+ARTIFACT_DIR = os.getenv("ARTIFACT_DIR", str(_REPO_ROOT / "artifacts"))
 
 st.set_page_config(
     page_title="FinGuard — Fraud Analytics",
