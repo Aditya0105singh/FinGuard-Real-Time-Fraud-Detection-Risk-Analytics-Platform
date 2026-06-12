@@ -39,6 +39,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Ensure artifact & data dirs exist for Docker COPY
+        run: |
+          mkdir -p artifacts data
+          # Create placeholder so COPY artifacts/ never fails in CI
+          touch artifacts/.gitkeep data/.gitkeep
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 

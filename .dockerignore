@@ -1,0 +1,41 @@
+# Git internals
+.git
+.gitignore
+.github
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local dev
+.env
+.venv/
+venv/
+env/
+
+# Large data files (mounted at runtime via Docker volumes)
+data/*.csv
+data/*.parquet
+
+# MLflow tracking (runtime only)
+mlruns/
+mlartifacts/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+notebooks/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Docs
+docs/
+
+# go.py helper script
+go.py
