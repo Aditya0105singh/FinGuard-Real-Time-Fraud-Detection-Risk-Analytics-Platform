@@ -762,7 +762,13 @@ def page_live_prediction() -> None:
     st.divider()
     section("GenAI Explanation (Groq)", "Translates the ML features into a human-readable memo.")
     
-    groq_api_key = st.text_input("Enter Groq API Key to generate an explanation:", type="password", help="Get a free key at console.groq.com")
+    # Check if key is in Streamlit secrets / environment
+    env_key = os.getenv("GROQ_API_KEY", "")
+    
+    if env_key:
+        groq_api_key = env_key
+    else:
+        groq_api_key = st.text_input("Enter Groq API Key to generate an explanation:", type="password", help="Get a free key at console.groq.com")
     
     if groq_api_key and factors:
         if st.button("Generate Explanation with Llama 3"):
