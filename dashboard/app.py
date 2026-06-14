@@ -141,7 +141,7 @@ def need_data() -> "pd.DataFrame | None":
     if _USING_SYNTHETIC:
         st.info(
             "📊 **Demo mode** — showing a synthetic dataset that mirrors the real "
-            "distribution (284,892 rows, 0.17% fraud). "
+            "distribution (28,892 rows, 1.70% fraud). "
             "The full 284K-row `creditcard.csv` is not stored in the repo for size reasons.",
             icon="ℹ️",
         )
@@ -158,13 +158,15 @@ def page_home() -> None:
     threshold = load_artifact("threshold_analysis.json")
     segments  = load_artifact("segments.json")
 
+    _txn_chip  = "28,892 transactions (demo)" if _USING_SYNTHETIC else "284,807 transactions"
+    _rate_chip = "1.70% fraud rate (demo)"   if _USING_SYNTHETIC else "0.17% fraud rate"
     hero(
         "🛡️ FinGuard",
         "Real-time credit card fraud detection that treats fraud as a "
         "business decision — statistically validated patterns, "
         "cost-optimised thresholds, and a SHAP explanation behind every score.",
         chips=[
-            "284,807 transactions", "0.17% fraud rate", "XGBoost + MLflow",
+            _txn_chip, _rate_chip, "XGBoost + MLflow",
             "FastAPI scoring", "Exact TreeSHAP", "PostgreSQL", "Docker + CI/CD",
         ],
     )
@@ -206,12 +208,21 @@ def page_home() -> None:
         "Card fraud costs the industry $32B+ a year — "
         "and every false decline burns customer goodwill too.",
     )
-    st.markdown(
-        "Only **492 of 284,807** transactions are fraudulent. "
-        "A model that approves everything is *99.8% accurate* "
-        "and catches **zero** fraud — so this project optimises what actually "
-        "matters: euros lost to missed fraud vs euros burned on false declines."
-    )
+    if _USING_SYNTHETIC:
+        st.markdown(
+            "Only **492 of 28,892** transactions in this demo are fraudulent (1.70%). "
+            "The real Kaggle dataset has 492 frauds in 284,807 rows (0.17%). "
+            "A model that approves everything is *99.8% accurate* "
+            "and catches **zero** fraud — so this project optimises what actually "
+            "matters: euros lost to missed fraud vs euros burned on false declines."
+        )
+    else:
+        st.markdown(
+            "Only **492 of 284,807** transactions are fraudulent. "
+            "A model that approves everything is *99.8% accurate* "
+            "and catches **zero** fraud — so this project optimises what actually "
+            "matters: euros lost to missed fraud vs euros burned on false declines."
+        )
 
     st.divider()
     section("What makes this system different")
@@ -248,10 +259,11 @@ def page_home() -> None:
 
     st.divider()
     section("Suggested path through the app")
-    step(1, "Executive Insights", "the findings memo — what the data says and what to do.")
-    step(2, "Live Prediction",    "score a transaction and watch the model explain itself.")
-    step(3, "Model Performance",  "cost curve, strategy bake-off, and honest metrics.")
-    step(4, "Fraud Analysis & Segments", "the statistical patterns behind the features.")
+    step(1, "Portfolio Overview",  "the raw numbers — volume, class balance, and time patterns.")
+    step(2, "Fraud Analysis & Segments", "the statistical patterns and behavioural clusters.")
+    step(3, "Executive Insights", "the findings memo — what the data says and what to do.")
+    step(4, "Live Prediction",    "score a transaction and watch the model explain itself.")
+    step(5, "Model Performance",  "cost curve, strategy bake-off, and honest metrics.")
 
     with st.expander("🏗️ Architecture overview"):
         st.code(
@@ -723,7 +735,7 @@ def page_live_prediction() -> None:
     }
     try:
         with st.spinner("Scoring… (first request may take ~30 s if the API is waking up on Render)"):
-            resp = requests.post(f"{API_BASE_URL}/predict", json=payload, timeout=35)
+            resp = requests.post(f"{API_BASE_URL}/predict", json=payload, timeout=60)
             resp.raise_for_status()
             result = resp.json()
     except requests.exceptions.ConnectionError:
@@ -800,26 +812,41 @@ def page_live_prediction() -> None:
         section("Why this score?", "Exact TreeSHAP contributions in log-odds space.")
         factors = result.get("top_factors") or []
         if factors:
-            shap_df = pd.DataFrame(factors)[::-1].reset_index(drop=True)
-            fig = go.Figure(go.Bar(
-                x=shap_df["contribution"],
-                y=shap_df["feature"],
-                orientation="h",
-                marker=dict(
-                    color=[RED if d == "increases_risk" else GREEN
-                           for d in shap_df["direction"]],
-                    line=dict(width=0),
-                ),
-                text=shap_df["contribution"].round(3),
-                textposition="outside",
-                textfont=dict(size=11, color=SLATE_700),
-            ))
-            fig.update_layout(
-                height=300,
-                xaxis_title="SHAP contribution (log-odds)",
-                margin=dict(t=8, b=8),
-            )
-            st.plotly_chart(fig, use_container_width=True)
+            shap_df = pd.DataFrame(factors)
+            # Guard against anomalous SHAP values (>10 in log-odds is physically impossible)
+            SHAP_LIMIT = 10.0
+            anomalous = shap_df[shap_df["contribution"].abs() > SHAP_LIMIT]
+            if not anomalous.empty:
+                st.warning(
+                    f"⚠️ SHAP value(s) for {list(anomalous['feature'])} appear anomalous "
+                    f"(|value| > {SHAP_LIMIT}). This is a known model artifact — "
+                    "those features are excluded from the chart.",
+                    icon="⚠️",
+                )
+                shap_df = shap_df[shap_df["contribution"].abs() <= SHAP_LIMIT]
+            shap_df = shap_df[::-1].reset_index(drop=True)
+            if not shap_df.empty:
+                max_abs = max(shap_df["contribution"].abs().max(), 0.5)
+                fig = go.Figure(go.Bar(
+                    x=shap_df["contribution"],
+                    y=shap_df["feature"],
+                    orientation="h",
+                    marker=dict(
+                        color=[RED if d == "increases_risk" else GREEN
+                               for d in shap_df["direction"]],
+                        line=dict(width=0),
+                    ),
+                    text=shap_df["contribution"].round(3),
+                    textposition="outside",
+                    textfont=dict(size=11, color=SLATE_700),
+                ))
+                fig.update_layout(
+                    height=300,
+                    xaxis_title="SHAP contribution (log-odds)",
+                    xaxis_range=[-(max_abs * 1.4), max_abs * 1.4],
+                    margin=dict(t=8, b=8),
+                )
+                st.plotly_chart(fig, use_container_width=True)
             st.caption("🔴 pushes score towards fraud · 🟢 pulls towards legitimate")
         else:
             st.info("The API did not return SHAP factors for this prediction.")
@@ -833,7 +860,13 @@ def page_live_prediction() -> None:
     if env_key:
         groq_api_key = env_key
     else:
-        groq_api_key = st.text_input("Enter Groq API Key to generate an explanation:", type="password", help="Get a free key at console.groq.com")
+        groq_api_key = st.text_input(
+            "Enter Groq API Key to generate an explanation:",
+            type="password",
+            help="Free key at https://console.groq.com/keys — no credit card needed. "
+                 "Leave blank to skip this section.",
+        )
+        st.caption("Get a free Groq API key at https://console.groq.com/keys (no credit card required).")
     
     if groq_api_key and factors:
         if st.button("Generate Explanation with Llama 3"):
@@ -899,6 +932,7 @@ def main() -> None:
         )
 
         st.divider()
+        _sidebar_data = "28,892 rows (demo)" if _USING_SYNTHETIC else "284,807 transactions"
         st.markdown(
             f"<div style='font-size:0.72rem;color:{SLATE_400};line-height:1.7;'>"
             f"<strong style='color:{SLATE_400};'>API</strong> "
@@ -906,11 +940,16 @@ def main() -> None:
             f"padding:0.1rem 0.35rem;border-radius:4px;font-size:0.7rem;'>"
             f"{API_BASE_URL}</code><br>"
             f"<strong style='color:{SLATE_400};'>Model</strong> XGBoost v1.0 · TreeSHAP<br>"
-            f"<strong style='color:{SLATE_400};'>Data</strong> 284,807 transactions"
+            f"<strong style='color:{SLATE_400};'>Data</strong> {_sidebar_data}"
             f"</div>",
             unsafe_allow_html=True,
         )
 
+    # Scroll to top on every page switch
+    st.markdown(
+        "<script>var m=window.parent.document.querySelector('.main');if(m)m.scrollTop=0;</script>",
+        unsafe_allow_html=True,
+    )
     PAGES[choice]()
 
 

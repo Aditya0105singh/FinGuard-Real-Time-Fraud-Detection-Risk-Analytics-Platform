@@ -136,9 +136,9 @@ _CSS = f"""
     font-weight: 600 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.03em !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    line-height: 1.3 !important;
 }}
 [data-testid="stMetricValue"] > div {{
     color: {SLATE_900} !important;

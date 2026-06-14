@@ -29,6 +29,7 @@ if "streamlit" in sys.modules:
 import logging
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 
 from api.model_loader import MODEL_VERSION, get_bundle
@@ -52,6 +53,13 @@ app = FastAPI(
     title="FinGuard Fraud Detection API",
     description="Real-time credit card fraud scoring with XGBoost",
     version=MODEL_VERSION,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
