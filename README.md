@@ -7,16 +7,16 @@ An end-to-end ML platform that detects credit card fraud in real time, explains 
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.39-FF4B4B?logo=streamlit&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.5-F7931E?logo=scikitlearn&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoCholor=white)
 ![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)
 
-[![🚀 Live Dashboard](https://img.shields.io/badge/🚀_Live_Dashboard-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://finguard-real-time-fraud-detection-risk-analytics-platform-muz.streamlit.app/)
+[![🚀 Live Dashboard](https://img.shields.io/badge/🚀_Live_Dashboard-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://finguard-real-time-fraud-detection-risk-analytics-platform-8hn.streamlit.app/)
 [![⚡ FastAPI Docs](https://img.shields.io/badge/⚡_FastAPI_Docs-Swagger_UI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://finguard-real-time-fraud-detection-risk.onrender.com/docs)
 [![🏥 API Health](https://img.shields.io/badge/🏥_API_Health-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://finguard-real-time-fraud-detection-risk.onrender.com/health)
 [![📦 GitHub Repo](https://img.shields.io/badge/📦_GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Aditya0105singh/FinGuard-Real-Time-Fraud-Detection-Risk-Analytics-Platform)
 
 > 🔗 **Quick Links:**
-> [📊 Live Dashboard](https://finguard-real-time-fraud-detection-risk-analytics-platform-muz.streamlit.app/) &nbsp;|&nbsp;
+> [📊 Live Dashboard](https://finguard-real-time-fraud-detection-risk-analytics-platform-8hn.streamlit.app/) &nbsp;|&nbsp;
 > [⚡ API Docs](https://finguard-real-time-fraud-detection-risk.onrender.com/docs) &nbsp;|&nbsp;
 > [🏥 Health Check](https://finguard-real-time-fraud-detection-risk.onrender.com/health) &nbsp;|&nbsp;
 > [📦 GitHub](https://github.com/Aditya0105singh/FinGuard-Real-Time-Fraud-Detection-Risk-Analytics-Platform)
@@ -27,7 +27,7 @@ An end-to-end ML platform that detects credit card fraud in real time, explains 
 
 | Service | URL |
 |---|---|
-| 📊 Streamlit Dashboard | [finguard…streamlit.app](https://finguard-real-time-fraud-detection-risk-analytics-platform-muz.streamlit.app/) |
+| 📊 Streamlit Dashboard | [finguard…streamlit.app](https://finguard-real-time-fraud-detection-risk-analytics-platform-8hn.streamlit.app/) |
 | ⚡ FastAPI Docs (Swagger) | [finguard…onrender.com/docs](https://finguard-real-time-fraud-detection-risk.onrender.com/docs) |
 | 🏥 API Health Check | [finguard…onrender.com/health](https://finguard-real-time-fraud-detection-risk.onrender.com/health) |
 
